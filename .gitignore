@@ -161,3 +161,7 @@ cython_debug/
 
 # Pyright
 pyrightconfig.json
+
+# Google Cloud Credentials
+credentials.json
+token.json
