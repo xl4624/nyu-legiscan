@@ -19,6 +19,8 @@ Example output using `client.get_monitor_list()`
 
 
 ## Google Sheets Progress
-Example output using `python quickstart.py`. Data is taken from the Example Spreadsheet provided by Google Sheets API Quickstart Guide, but we can modify it to read from and write to our spreadsheets.  
-<img width="292" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/2fc77236-3da5-4c1d-a2cd-645439b5946b">
+Current progress when running `python quickstart.py`. We can now read data from the Google Sheets using the Google Sheets API and here is an example row:  
+<img width="1431" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/7983c7e3-f518-46f2-a48c-0bfdca176853">
+
+Soon we should be able to load this data into a pandas dataframe and compare certain row values to our monitor list's from the LegiScan API.
 

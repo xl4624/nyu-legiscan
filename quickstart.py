@@ -12,8 +12,8 @@ from googleapiclient.errors import HttpError
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 # The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-SAMPLE_RANGE_NAME = "Class Data!A2:E"
+SAMPLE_SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"
+SAMPLE_RANGE_NAME = "Input Form Responses!A2:Y"
 
 
 def main():
@@ -31,9 +31,7 @@ def main():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", SCOPES
-            )
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open("token.json", "w") as token:
@@ -55,10 +53,10 @@ def main():
             print("No data found.")
             return
 
-        print("Name, Major:")
         for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print(f"{row[0]}, {row[4]}")
+            if row:
+                print(row)
+
     except HttpError as err:
         print(err)
 
