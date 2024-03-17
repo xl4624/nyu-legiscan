@@ -1,0 +1,87 @@
+import os.path
+import numpy as np
+import pandas as pd
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+
+class GoogleSheetsAPI:
+
+    # If modifying these scopes, delete the file token.json.
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+
+   # The ID and range of the spreadsheet.
+    SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"
+    RANGE_NAME = "Input Form Responses!A1:Y"
+
+    def __init__(self, spreadsheet_id: str = None, range_name: str = None, scopes: list[str] = None):
+        self.spreadsheet_id = spreadsheet_id if spreadsheet_id else self.SPREADSHEET_ID
+        self.range_name = range_name if range_name else self.RANGE_NAME
+        self.scopes = scopes if scopes else self.SCOPES
+        self.creds = self.authenticate()
+
+    def read_sheet(self) -> pd.DataFrame:
+        """
+        Returns:
+            A pandas DataFrame with the data from the Google Sheet as specified by
+            `self.spreadsheet_id` and `self.range_name`.
+        Raises:
+            googleapiclient.errors.HttpError: An error occurred while fetching the data.
+        """
+        service = build("sheets", "v4", credentials=self.creds)
+
+        # Call the Sheets API
+        sheet = service.spreadsheets()
+        result = (
+            sheet.values()
+            .get(spreadsheetId=self.spreadsheet_id, range=self.range_name)
+            .execute()
+        )
+        values = result.get("values", [])
+
+        if not values:
+            print("No data found.")
+            return
+
+        max_columns = max(len(row) for row in values)
+        adjusted_values = [row + [None] * (max_columns - len(row)) for row in values]
+
+        df = pd.DataFrame(adjusted_values[1:], columns=adjusted_values[0])
+        return df
+
+    def update_data(self, df: pd.DataFrame) -> None:
+        # Add the column headers to the data to be included when updating the sheet.
+        data = [df.columns.tolist()] + df.values.tolist()
+
+        service = build("sheets", "v4", credentials=self.creds)
+        body = {"values": data}
+        result = service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet_id,
+            range=self.range_name,
+            valueInputOption="USER_ENTERED",
+            body=body,
+        ).execute()
+        print(f"{result.get('updatedCells')} cells updated.")
+
+    def authenticate(self) -> Credentials:
+        creds = None
+        # The file token.json stores the user's access and refresh tokens, and is
+        # created automatically when the authorization flow completes for the first
+        # time.
+        if os.path.exists("token.json"):
+            creds = Credentials.from_authorized_user_file("token.json", self.scopes)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", self.scopes)
+                creds = flow.run_local_server(port=0)
+
+        # Save the credentials for the next run
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
+        return creds

@@ -1,9 +1,11 @@
 import requests
 
+from config import LEGISCAN_API_KEY
+
 
 class LegiscanClient:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+    def __init__(self, api_key: str = None):
+        self.api_key = api_key if api_key else LEGISCAN_API_KEY
         self.base_url = f"https://api.legiscan.com/"
 
     def get_monitor_list(self, record="current") -> list[dict]:
