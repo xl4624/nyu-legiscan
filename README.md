@@ -1,6 +1,7 @@
 # nyu-legiscan
 
 ## Setup
+
 1. Clone repository 
 2. Install dependencies
 ```bash
@@ -14,13 +15,57 @@ LEGISCAN_API_KEY=your_api_key_here
 and save the `credentials.json` file in the root directory.
 
 ## Legiscan API Client Progress
+
 Example output using `client.get_monitor_list()`
 <img width="1440" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/cab49bfa-eb1f-4086-a7b0-a5986a7316fe">
 
 
 ## Google Sheets Progress
-Current progress when running `python quickstart.py`. We can now read data from the Google Sheets using the Google Sheets API and here is an example row:  
-<img width="1431" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/7983c7e3-f518-46f2-a48c-0bfdca176853">
 
-Soon we should be able to load this data into a pandas dataframe and compare certain row values to our monitor list's from the LegiScan API.
+So far, we have Legiscan and Google Sheets bills matched by Bill Number.
 
+### List of Unmatched Legiscan API Monitor List Bills
+
+By Bill Number (24):
+```
+AB1814
+SB00003
+SB974
+SB1180
+HB3026
+SB3423
+HB3199
+HB1563
+HF43
+LD949
+SB762
+HF4235
+SF954
+HF2532
+SB401
+A06787
+A01880
+S02308
+S02615
+S03281
+A04423
+A04967
+A05517
+S06224
+```
+
+### List of Bills that have multiple entries in the Google Sheets
+
+By Bill Number (10):
+```
+AB793
+SB1085
+SB176
+HB626
+HB483
+HB1585
+HB259
+HB33
+SB169
+H4024
+```
