@@ -1,7 +1,10 @@
+# Script to update the Google Sheet with the Legiscan Bill ID and Change Hash
+# Could be a .ipynb file since we really only need to run this once.
+
 import re
 
-from legiscan import LegiscanClient
 from google_sheets import GoogleSheetsAPI
+from legiscan import LegiscanClient
 
 abbreviation_to_name = {
     # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.
@@ -13,7 +16,6 @@ abbreviation_to_name = {
 }
 
 
-# Script to update the Google Sheet with the Legiscan Bill ID and Change Hash
 def main():
     # Example of using the Legiscan API Client
     client = LegiscanClient()
@@ -32,6 +34,9 @@ def main():
     # Example of using the Google Sheets API to read and update data
     sheets = GoogleSheetsAPI()
     df = sheets.read_sheet()
+    if df is None:
+        print("Failed to read the Google Sheet.")
+        return
 
     unmatched_bills_length = 0
     for bill in bills:
@@ -41,12 +46,14 @@ def main():
         parts = re.match(r"(\D+)(\d+)", bill_number)
         if parts:
             prefix, suffix = parts.groups()
-            modified_bill_numbers = set([
-                bill_number,  # Original
-                prefix + 'B' + suffix,  # Add 'B' to prefix
-                prefix + suffix.lstrip("0"),  # Remove leading zeros from suffix
-                prefix + 'B' + suffix.lstrip("0"),  # Both modifications
-            ])
+            modified_bill_numbers = set(
+                [
+                    bill_number,  # Original
+                    prefix + "B" + suffix,  # Add 'B' to prefix
+                    prefix + suffix.lstrip("0"),  # Remove leading zeros from suffix
+                    prefix + "B" + suffix.lstrip("0"),  # Both modifications
+                ]
+            )
             if prefix == "LD":
                 modified_bill_numbers.add("SB" + suffix)
                 modified_bill_numbers.add("HB" + suffix)
@@ -61,8 +68,9 @@ def main():
                 # so we need to check the jurisdiction as well.
                 # Also if it's a state bill it will have the the full state name but if it's a
                 # city bill it will be in the "city, state_abbr" format.
-                mask &= (df["Jurisdiction"].str.contains(state_full)
-                         | df["Jurisdiction"].str.contains(state_abbr))
+                mask &= df["Jurisdiction"].str.contains(state_full) | df[
+                    "Jurisdiction"
+                ].str.contains(state_abbr)
 
                 if mask.sum() > 1:
                     print(f"Multiple matches for bill number {bn} in {state_full}.")
@@ -74,7 +82,7 @@ def main():
                     break
             else:
                 unmatched_bills_length += 1
-                print(bill_number)
+                print(f"Bill not found in Google Sheet: {bill_number}")
     print(f"{unmatched_bills_length} bills were not matched to the Google Sheet.")
 
     # Uncomment to update the Google Sheet

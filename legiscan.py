@@ -1,12 +1,14 @@
+from typing import Optional
+
 import requests
 
 from config import LEGISCAN_API_KEY
 
 
 class LegiscanClient:
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key if api_key else LEGISCAN_API_KEY
-        self.base_url = f"https://api.legiscan.com/"
+        self.base_url = "https://api.legiscan.com/"
 
     def get_monitor_list(self, record="all") -> list[dict]:
         return self._make_request("getMonitorList", record=record)["monitorlist"]
