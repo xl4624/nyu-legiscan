@@ -1,19 +1,10 @@
-# Script to update the Google Sheet with the Legiscan Bill ID and Change Hash
-# Could be a .ipynb file since we really only need to run this once.
+# Monitor List to Google Sheets Bill ID and Change Hash Sync
+# Deprecated since we should search from the Google Sheets
 
 import re
 
 from google_sheets import GoogleSheetsAPI
 from legiscan import LegiscanClient
-
-abbreviation_to_name = {
-    # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.
-    "AK": "Alaska", "AL": "Alabama", "AR": "Arkansas", "AZ": "Arizona", "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "IA": "Iowa", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "MA": "Massachusetts", "MD": "Maryland", "ME": "Maine", "MI": "Michigan", "MN": "Minnesota", "MO": "Missouri", "MS": "Mississippi", "MT": "Montana", "NC": "North Carolina", "ND": "North Dakota", "NE": "Nebraska", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NV": "Nevada", "NY": "New York", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VA": "Virginia", "VT": "Vermont", "WA": "Washington", "WI": "Wisconsin", "WV": "West Virginia", "WY": "Wyoming",
-    # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Federal_district.
-    "DC": "District of Columbia",
-    # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Inhabited_territories.
-    "AS": "American Samoa", "GU": "Guam GU", "MP": "Northern Mariana Islands", "PR": "Puerto Rico PR", "VI": "U.S. Virgin Islands",
-}
 
 
 def main():
@@ -61,7 +52,7 @@ def main():
             # Check if any version of the bill number is in the DataFrame
             for bn in modified_bill_numbers:
                 state_abbr = bill["state"]
-                state_full = abbreviation_to_name.get(state_abbr, "Federal")
+                state_full = LegiscanClient.STATE_ABBR_TO_NAME.get(state_abbr, "Federal")
                 mask = df["Bill Number"].str.upper().str.replace(" ", "").eq(bn)
 
                 # There is a SB362 bill in California and a SB362 bill in New Hampshire,

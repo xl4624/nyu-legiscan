@@ -19,53 +19,25 @@ and save the `credentials.json` file in the root directory.
 Example output using `client.get_monitor_list()`
 <img width="1440" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/cab49bfa-eb1f-4086-a7b0-a5986a7316fe">
 
+### Fields for Updated Bills
 
-## Google Sheets Progress
+Status/Progress
+Latest History (and date)
+Sine Die (in session or died in chamber)
 
-So far, we have Legiscan and Google Sheets bills matched by Bill Number.
+### Fields for New Bills
 
-### List of Unmatched Legiscan API Monitor List Bills
+Bill Number
+Status/Progress
+Latest History (and date)
+Title
+Description
+Enactment Date
+...
 
-By Bill Number (24):
-```
-AB1814
-SB00003
-SB974
-SB1180
-HB3026
-SB3423
-HB3199
-HB1563
-HF43
-LD949
-SB762
-HF4235
-SF954
-HF2532
-SB401
-A06787
-A01880
-S02308
-S02615
-S03281
-A04423
-A04967
-A05517
-S06224
-```
+### Todo
+setMonitor
 
-### List of Bills that have multiple entries in the Google Sheets
+sync -> update -> add
 
-By Bill Number (10):
-```
-AB793
-SB1085
-SB176
-HB626
-HB483
-HB1585
-HB259
-HB33
-SB169
-H4024
-```
+Federal is "US" state

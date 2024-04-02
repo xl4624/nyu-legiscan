@@ -27,7 +27,7 @@ class GoogleSheetsAPI:
         self.scopes = scopes if scopes else self.SCOPES
         self.creds = self.authenticate()
 
-    def read_sheet(self) -> Optional[pd.DataFrame]:
+    def read_sheet(self) -> pd.DataFrame:
         service = build("sheets", "v4", credentials=self.creds)
 
         # Call the Sheets API
@@ -41,7 +41,7 @@ class GoogleSheetsAPI:
 
         if not values:
             print("No data found.")
-            return
+            raise ValueError("No data found")
 
         max_columns = max(len(row) for row in values)
         adjusted_values = [row + [None] * (max_columns - len(row)) for row in values]
