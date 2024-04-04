@@ -6,24 +6,11 @@ from config import LEGISCAN_API_KEY
 
 
 class LegiscanClient:
-    STATE_ABBR_TO_NAME = {
-        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.
-        "AK": "Alaska", "AL": "Alabama", "AR": "Arkansas", "AZ": "Arizona", "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "IA": "Iowa", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "MA": "Massachusetts", "MD": "Maryland", "ME": "Maine", "MI": "Michigan", "MN": "Minnesota", "MO": "Missouri", "MS": "Mississippi", "MT": "Montana", "NC": "North Carolina", "ND": "North Dakota", "NE": "Nebraska", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NV": "Nevada", "NY": "New York", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VA": "Virginia", "VT": "Vermont", "WA": "Washington", "WI": "Wisconsin", "WV": "West Virginia", "WY": "Wyoming",
-        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Federal_district.
-        "DC": "District of Columbia",
-        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Inhabited_territories.
-        "AS": "American Samoa", "GU": "Guam GU", "MP": "Northern Mariana Islands", "PR": "Puerto Rico PR", "VI": "U.S. Virgin Islands",
-    }
-
-    STATE_NAME_TO_ABBR = {
-        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC", "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY", "District of Columbia": "DC", "American Samoa": "AS", "Guam": "GU", "Northern Mariana Islands": "MP", "Puerto Rico": "PR", "United States Minor Outlying Islands": "UM", "U.S. Virgin Islands": "VI"
-    }
-
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key if api_key else LEGISCAN_API_KEY
+        self.api_key = api_key or LEGISCAN_API_KEY
         self.base_url = "https://api.legiscan.com/"
 
-    def get_monitor_list(self, record="all") -> list[dict]:
+    def get_monitor_list(self, record: str = "all") -> list[dict]:
         return self._make_request("getMonitorList", record=record)["monitorlist"]
 
     def get_bill(self, bill_id: str) -> dict:
@@ -35,14 +22,142 @@ class LegiscanClient:
         """
         return [self.get_bill(bill_id=bill["bill_id"]) for bill in monitor_list]
 
-    def get_search(self, state: str, query: str, year=1):
-        return self._make_request("getSearch", state=state, query=query, year=year)
+    def get_search(
+        self, state: str, bill: Optional[str] = None, query: Optional[str] = None, year: int = 1
+    ):
+        if not bill and not query:
+            raise ValueError("Either bill or query must be provided.")
+        params = {"state": state, "year": year}
+        if bill:
+            params["bill"] = bill
+        elif query:
+            params["query"] = query
+        return self._make_request("getSearch", **params)
 
     def _make_request(self, operation: str, **params):
-        params["key"] = self.api_key
-        params["op"] = operation
-
+        params.update({"key": self.api_key, "op": operation})
         response = requests.get(self.base_url, params=params)
-        if response.status_code != 200:
-            response.raise_for_status()
+        response.raise_for_status()
         return response.json()
+
+    STATE_ABBR_TO_NAME = {
+        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.
+        "AK": "Alaska",
+        "AL": "Alabama",
+        "AR": "Arkansas",
+        "AZ": "Arizona",
+        "CA": "California",
+        "CO": "Colorado",
+        "CT": "Connecticut",
+        "DE": "Delaware",
+        "FL": "Florida",
+        "GA": "Georgia",
+        "HI": "Hawaii",
+        "IA": "Iowa",
+        "ID": "Idaho",
+        "IL": "Illinois",
+        "IN": "Indiana",
+        "KS": "Kansas",
+        "KY": "Kentucky",
+        "LA": "Louisiana",
+        "MA": "Massachusetts",
+        "MD": "Maryland",
+        "ME": "Maine",
+        "MI": "Michigan",
+        "MN": "Minnesota",
+        "MO": "Missouri",
+        "MS": "Mississippi",
+        "MT": "Montana",
+        "NC": "North Carolina",
+        "ND": "North Dakota",
+        "NE": "Nebraska",
+        "NH": "New Hampshire",
+        "NJ": "New Jersey",
+        "NM": "New Mexico",
+        "NV": "Nevada",
+        "NY": "New York",
+        "OH": "Ohio",
+        "OK": "Oklahoma",
+        "OR": "Oregon",
+        "PA": "Pennsylvania",
+        "RI": "Rhode Island",
+        "SC": "South Carolina",
+        "SD": "South Dakota",
+        "TN": "Tennessee",
+        "TX": "Texas",
+        "UT": "Utah",
+        "VA": "Virginia",
+        "VT": "Vermont",
+        "WA": "Washington",
+        "WI": "Wisconsin",
+        "WV": "West Virginia",
+        "WY": "Wyoming",
+        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Federal_district.
+        "DC": "District of Columbia",
+        # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#Inhabited_territories.
+        "AS": "American Samoa",
+        "GU": "Guam GU",
+        "MP": "Northern Mariana Islands",
+        "PR": "Puerto Rico PR",
+        "VI": "U.S. Virgin Islands",
+    }
+
+    STATE_NAME_TO_ABBR = {
+        "Alabama": "AL",
+        "Alaska": "AK",
+        "Arizona": "AZ",
+        "Arkansas": "AR",
+        "California": "CA",
+        "Colorado": "CO",
+        "Connecticut": "CT",
+        "Delaware": "DE",
+        "Florida": "FL",
+        "Georgia": "GA",
+        "Hawaii": "HI",
+        "Idaho": "ID",
+        "Illinois": "IL",
+        "Indiana": "IN",
+        "Iowa": "IA",
+        "Kansas": "KS",
+        "Kentucky": "KY",
+        "Louisiana": "LA",
+        "Maine": "ME",
+        "Maryland": "MD",
+        "Massachusetts": "MA",
+        "Michigan": "MI",
+        "Minnesota": "MN",
+        "Mississippi": "MS",
+        "Missouri": "MO",
+        "Montana": "MT",
+        "Nebraska": "NE",
+        "Nevada": "NV",
+        "New Hampshire": "NH",
+        "New Jersey": "NJ",
+        "New Mexico": "NM",
+        "New York": "NY",
+        "North Carolina": "NC",
+        "North Dakota": "ND",
+        "Ohio": "OH",
+        "Oklahoma": "OK",
+        "Oregon": "OR",
+        "Pennsylvania": "PA",
+        "Rhode Island": "RI",
+        "South Carolina": "SC",
+        "South Dakota": "SD",
+        "Tennessee": "TN",
+        "Texas": "TX",
+        "Utah": "UT",
+        "Vermont": "VT",
+        "Virginia": "VA",
+        "Washington": "WA",
+        "West Virginia": "WV",
+        "Wisconsin": "WI",
+        "Wyoming": "WY",
+        "District of Columbia": "DC",
+        "American Samoa": "AS",
+        "Guam": "GU",
+        "Northern Mariana Islands": "MP",
+        "Puerto Rico": "PR",
+        "United States Minor Outlying Islands": "UM",
+        "U.S. Virgin Islands": "VI",
+    }

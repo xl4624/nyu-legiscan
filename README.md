@@ -36,8 +36,11 @@ Enactment Date
 ...
 
 ### Todo
+
 setMonitor
 
 sync -> update -> add
 
 Federal is "US" state
+
+There is a bill parameter in getSearch that is not in the API manual but seems to be more consistent when passing in the bill number
