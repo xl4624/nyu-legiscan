@@ -12,35 +12,35 @@ pip install -r requirements.txt
 LEGISCAN_API_KEY=your_api_key_here
 ```
 4. Follow these quickstart instructions to enable the Google Sheets API: https://developers.google.com/sheets/api/quickstart/python
-and save the `credentials.json` file in the root directory.
+and save the `credentials.json` and `token.json` file in the root directory.
 
-## Legiscan API Client Progress
-
-Example output using `client.get_monitor_list()`
-<img width="1440" alt="image" src="https://github.com/xl4624/nyu-legiscan/assets/116298054/cab49bfa-eb1f-4086-a7b0-a5986a7316fe">
+## Progress
 
 ### Fields for Updated Bills
 
-Status/Progress
-Latest History (and date)
-Sine Die (in session or died in chamber)
+Status/Progress  
+Latest History (and date)  
+Sine Die (in session or died in chamber)  
 
 ### Fields for New Bills
 
-Bill Number
-Status/Progress
-Latest History (and date)
-Title
-Description
-Enactment Date
-...
+Bill Number  
+Status/Progress  
+Latest History (and date)  
+Title  
+Description  
+Enactment Date  
+...  
 
 ### Todo
 
-setMonitor
+Use `setMonitor` to update the monitoring list to match our Google Sheet  
 
+Broad workflow of this project:  
 sync -> update -> add
 
-Federal is "US" state
+Federal/US Congress bills are labeled under "US" state
 
-There is a bill parameter in getSearch that is not in the API manual but seems to be more consistent when passing in the bill number
+There is a `bill` parameter in `getSearch` that is not in the API manual. I found it by looking through
+their API Client's source code (warning it's in PHP). This seems to be more consistent when passing
+in the bill number than `query`. We will likely still use query but probably just to add bills.

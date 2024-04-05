@@ -1,5 +1,5 @@
 # Monitor List to Google Sheets Bill ID and Change Hash Sync
-# Deprecated since we should search from the Google Sheets
+# Deprecated since we should search from the Google Sheets to the Legsican API not the other way around.
 
 import re
 
