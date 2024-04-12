@@ -41,7 +41,7 @@ class LegiscanClient:
             status_description = self.STATUS[status_id]
 
         date_object = datetime.strptime(status_date, "%Y-%m-%d")
-        status_date = date_object.strftime("%B %d, %Y") # Example: May 12, 2024
+        status_date = date_object.strftime("%B %d, %Y")  # Example: May 12, 2024
         response = f"{status_description} on {status_date}"
         if status_id in {1, 2, 3}:
             response += ", died in chamber/comittee" if sine_die else ""

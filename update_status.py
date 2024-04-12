@@ -12,7 +12,7 @@ def main():
             # if row["Latest Action"] not in {"Proposed and Pending", "Engrossed"}:
             #     continue
             bill_id = str(row["Legiscan Bill ID"])
-            if bill_id == 'None':
+            if bill_id == "None":
                 continue
             response = client.get_bill(bill_id)
             bill = response["bill"]
