@@ -1,5 +1,5 @@
 from typing import Optional
-
+from datetime import datetime
 import requests
 
 from config import LEGISCAN_API_KEY
@@ -34,11 +34,41 @@ class LegiscanClient:
             params["query"] = query
         return self._make_request("getSearch", **params)
 
+    def get_status(self, status_id: int, status_date: str, sine_die: int) -> str:
+        if status_id >= len(self.STATUS) or status_id < 0:
+            status_description = "N/A"
+        else:
+            status_description = self.STATUS[status_id]
+
+        date_object = datetime.strptime(status_date, "%Y-%m-%d")
+        status_date = date_object.strftime("%B %d, %Y") # Example: May 12, 2024
+        response = f"{status_description} on {status_date}"
+        if status_id in {1, 2, 3}:
+            response += ", died in chamber/comittee" if sine_die else ""
+
+        return response  # If sine_die == 0
+
     def _make_request(self, operation: str, **params):
         params.update({"key": self.api_key, "op": operation})
         response = requests.get(self.base_url, params=params)
         response.raise_for_status()
         return response.json()
+
+    STATUS = [
+        "Pre-introduction",
+        "Introduced",
+        "Engrossed",
+        "Enrolled",
+        "Passed",
+        "Vetoed",
+        "Failed",
+        "Override",
+        "Chaptered",
+        "Refer",
+        "Report Pass",
+        "Report DNP",
+        "Draft",
+    ]
 
     STATE_ABBR_TO_NAME = {
         # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.

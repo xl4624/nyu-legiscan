@@ -14,7 +14,7 @@ class GoogleSheetsAPI:
 
     # The ID and range of the spreadsheet.
     SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"
-    RANGE_NAME = "Input Form Responses!A1:Y"
+    RANGE_NAME = "Input Form Responses!A1:AD"
 
     def __init__(
         self,
@@ -36,7 +36,12 @@ class GoogleSheetsAPI:
         values = result.get("values", [])
         if not values:
             raise ValueError("No data found")
-        return pd.DataFrame(values[1:], columns=values[0])
+
+        # Append None
+        header = values[0]
+        data_rows = [row + [None] * (len(header) - len(row)) for row in values[1:]]
+
+        return pd.DataFrame(data_rows, columns=header)
 
     def update_data(self, df: pd.DataFrame) -> None:
         service = build("sheets", "v4", credentials=self.creds)
