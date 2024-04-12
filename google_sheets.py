@@ -13,7 +13,8 @@ class GoogleSheetsAPI:
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
     # The ID and range of the spreadsheet.
-    SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"
+    # SPREADSHEET_ID = "1DBmf-9UObut_uh9i9GtEP7_hciqzd6uLMqPPKU9B0MA"  # Real Google Sheet
+    SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"  # Copy of Google Sheet
     RANGE_NAME = "Input Form Responses!A1:AD"
 
     def __init__(

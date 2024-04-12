@@ -44,7 +44,7 @@ class LegiscanClient:
         status_date = date_object.strftime("%B %d, %Y")  # Example: May 12, 2024
         response = f"{status_description} on {status_date}"
         if status_id in {1, 2, 3}:
-            response += ", died in chamber/comittee" if sine_die else ""
+            response += ", died in chamber/committee" if sine_die else ""
 
         return response  # If sine_die == 0
 
