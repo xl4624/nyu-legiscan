@@ -3,11 +3,10 @@
 # either by Terrance or by other community members
 
 import re
-
 import pandas as pd
 
-from google_sheets import GoogleSheetsAPI
-from legiscan import LegiscanClient
+from src.google_sheets import GoogleSheetsAPI
+from src.legiscan import LegiscanClient
 
 
 def main():

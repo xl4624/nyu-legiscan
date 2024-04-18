@@ -1,8 +1,9 @@
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 import requests
 
-from config import LEGISCAN_API_KEY
+from .config import LEGISCAN_API_KEY
 
 
 class LegiscanClient:
@@ -34,7 +35,7 @@ class LegiscanClient:
             params["query"] = query
         return self._make_request("getSearch", **params)
 
-    def get_status(self, status_id: int, status_date: str, sine_die: int) -> str:
+    def get_status_from(self, status_id: int, status_date: str, sine_die: int) -> str:
         if status_id >= len(self.STATUS) or status_id < 0:
             status_description = "N/A"
         else:
@@ -46,7 +47,7 @@ class LegiscanClient:
         if status_id in {1, 2, 3}:
             response += ", died in chamber/committee" if sine_die else ""
 
-        return response  # If sine_die == 0
+        return response
 
     def _make_request(self, operation: str, **params):
         params.update({"key": self.api_key, "op": operation})

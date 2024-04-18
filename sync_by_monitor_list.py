@@ -3,8 +3,8 @@
 
 import re
 
-from google_sheets import GoogleSheetsAPI
-from legiscan import LegiscanClient
+from src.google_sheets import GoogleSheetsAPI
+from src.legiscan import LegiscanClient
 
 
 def main():
