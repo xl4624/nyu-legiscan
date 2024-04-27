@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pandas as pd
 
 from src.google_sheets import GoogleSheetsAPI
@@ -26,14 +24,17 @@ def main():
             )
             history = bill["history"][-1]["action"]
 
-            df.at[i, "Legiscan Status"] = status
-            df.at[i, "Legiscan Latest History"] = history
+            df.at[i, "Legislative Status"] = status
+            df.at[i, "Latest History"] = history
 
-            if df.at[i, "Manual Override"] != "FALSE":
+            if df.at[i, "Manual Override (for Latest Action)"] != "FALSE":
                 continue
 
-            if bill["session"]["sine_die"]:
-                latest_action = "Died in Chamber/Committee"
+            if bill["status"] in {1, 2, 3}:
+                if bill["session"]["sine_die"] == 1:
+                    latest_action = "Died in Chamber/Committee"
+                else:
+                    latest_action = "Proposed and Pending"
             elif bill["status"] == 4:  # From passed to enacted
                 latest_action = "Enacted"
             else:
@@ -42,8 +43,8 @@ def main():
             df.at[i, "Latest Action"] = latest_action
 
             # Update the status last updated time if the row changes
-            if any(row != df.loc[i]):
-                df.at[i, "Status Last Updated"] = datetime.now()
+            # if any(row != df.loc[i]):
+            #     df.at[i, "Status Last Updated"] = datetime.now()
 
             print(f"{i}. {str(row['Bill Number'])}: {status}")
         except Exception as e:

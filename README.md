@@ -2,68 +2,84 @@
 
 ## Setup
 
-1. Clone repository 
+1. Clone repository
+
 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
 3. Create a `.env` file in the root directory and add the following:
-```bash
-LEGISCAN_API_KEY=your_api_key_here
-```
-4. Follow these quickstart instructions to enable the Google Sheets API: https://developers.google.com/sheets/api/quickstart/python and save the `credentials.json` and `token.json` file in the root directory.
+
+    ```bash
+    LEGISCAN_API_KEY=your_api_key_here
+    ```
+
+4. Follow these [quickstart instructions](https://developers.google.com/sheets/api/quickstart/python)
+to enable the Google Sheets API: and save the `credentials.json` and `token.json`
+file in the root directory.
 
 ## Progress
 
-### Fields for New Bills
+### TODO
 
-Fields that we might be able to populate when adding bills
+- [ ] Making a Google Docs of the technical documentation.
+- [ ] Adding the rest of the fields to the new bills.
+- [ ] Run the `add_bills.py` script with >90 relevance score
+- [ ]Sync up the copy and the real Google Sheets. (5/17 if needed)
 
-Bill Number  
-Status/Progress  
-Latest History (and date)  
-Title  
-Description  
-Enactment Date  
-...  
+### Notes
 
+We need to break down big keywords down to smaller chunks that are more manageable.
+For example, instead of "Artificial intelligence", we might need to add more qualifiers
+that specify the context in which we want to search bills related to artificial
+intelligence, such as in the context of surveillance, privacy, law enforcement:
 
-## TODO
+- "Artificial Intelligence" AND "surveillance"
+- "Artificial Intelligence" AND "privacy"
+- "Artificial Intelligence" AND "law enforcement"
 
-Interesting read from the Legiscan Client (might be useful)
+probably all at relevance > 90
 
-Search (National)
+More things to note:
 
-This mode will synchronize the results of searches ran against the national database. To specify the searches edit the config.php and add each search to the searches[] setting.
+- There is a `bill` parameter in `getSearch` that is not in the API manual. I
+found it by looking through their API Client's source code (warning it's in PHP).
+This seems to be more consistent when passing in the bill number than `query`.
+We will likely still use `query` when it's time to add bills but this is useful
+for searching by bill number.
+- Use `setMonitor` to update the monitoring list to match our Google Sheet  
+- Broad stages of progress for this project:
+  - sync -> update -> add
+- Federal/US Congress bills are labeled under "US" state
 
-The searches will also be filtered by the global relevance cutoff setting, which can be overridden on a per search basis by prepending a different score and the pipe | character. In addition a state abbreviations can also be prefixed to override either national or state search. When used with a relevance override the state should appear first separated by a comma ,.
+### Google Sheet
 
-Also notice that the entire search string should be quoted, and any internal quotes should be escaped as \".
-
-searches[] = "gender AND bathroom"
-searches[] = "\"national popular vote\""
-searches[] = "42|hemp OR cannabis OR marijuana"
-searches[] = "NY|charter ADJ schools"
-searches[] = "CA,60|vaccination AND status:passed"
+Might want another sheet inside the same Google Sheet with the title and
+Legsican URL that Terrance can review as relevant and then once they are marked
+relevant, query in `getBill`. Looking back at this, probably not though just
+because it would need to run two different scripts. It probably works to do
+`getSearch` and then `getBill` and add the relevant bills to the Google Sheet
+as "Unreviewed".
 
 ## Archived
 
 ### Steps to Transition
-1. Add `Legiscan Status` and `Legiscan Latest History` columns to the right of the L. `Latest Action` column.
+
+1. Add `Legiscan Status` and `Legiscan Latest History` columns to the right of
+the `Latest Action` column.
+
 2. Add `Legiscan Bill ID` and `Change Hash` to the end of the columns.
+
 3. Modify `Public-View Filter` from
-```
-=QUERY('Input Form Responses'!A2:W1000, "select B, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U where C = 'Accepted'")
-```
-to
-```
-=QUERY('Input Form Responses'!A2:W1000, "select B, E, F, G, H, I, J, K, L, O, P, Q, R, S, T, U, V, W where C = 'Accepted'")
-```
 
-### Things to Note
+    ```appscript
+    =QUERY('Input Form Responses'!A2:W1000, "select B, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U where C = 'Accepted'")
+    ```
 
-- There is a `bill` parameter in `getSearch` that is not in the API manual. I found it by looking through their API Client's source code (warning it's in PHP). This seems to be more consistent when passing in the bill number than `query`. We will likely still use query but this is useful for searching by bill number.
-- Use `setMonitor` to update the monitoring list to match our Google Sheet  
-- Broad workflow of this project:  
-    - sync -> update -> add
-- Federal/US Congress bills are labeled under "US" state
+    to
+
+    ```appscript
+    =QUERY('Input Form Responses'!A2:W1000, "select B, E, F, G, H, I, J, K, L, O, P, Q, R, S, T, U, V, W where C = 'Accepted'")
+    ```

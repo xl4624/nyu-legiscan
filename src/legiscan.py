@@ -24,11 +24,16 @@ class LegiscanClient:
         return [self.get_bill(bill_id=bill["bill_id"]) for bill in monitor_list]
 
     def get_search(
-        self, state: str, bill: Optional[str] = None, query: Optional[str] = None, year: int = 1
+        self,
+        state: str,
+        bill: Optional[str] = None,
+        query: Optional[str] = None,
+        year: int = 1,
+        page: int = 1,
     ):
         if not bill and not query:
             raise ValueError("Either bill or query must be provided.")
-        params = {"state": state, "year": year}
+        params = {"state": state, "year": year, "page": page}
         if bill:
             params["bill"] = bill
         elif query:
@@ -56,7 +61,7 @@ class LegiscanClient:
         return response.json()
 
     STATUS = [
-        "Pre-introduction",
+        "Prefiled",
         "Introduced",
         "Engrossed",
         "Enrolled",
