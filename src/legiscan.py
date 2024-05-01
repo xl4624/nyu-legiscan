@@ -7,9 +7,9 @@ from .config import LEGISCAN_API_KEY
 
 
 class LegiscanClient:
+    BASE_URL = "https://api.legiscan.com/"
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or LEGISCAN_API_KEY
-        self.base_url = "https://api.legiscan.com/"
 
     def get_monitor_list(self, record: str = "all") -> list[dict]:
         return self._make_request("getMonitorList", record=record)["monitorlist"]
@@ -56,7 +56,7 @@ class LegiscanClient:
 
     def _make_request(self, operation: str, **params):
         params.update({"key": self.api_key, "op": operation})
-        response = requests.get(self.base_url, params=params)
+        response = requests.get(self.BASE_URL, params=params)
         response.raise_for_status()
         return response.json()
 

@@ -3,6 +3,7 @@
 
 import re
 
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
@@ -23,11 +24,10 @@ def main():
     ]
 
     # Example of using the Google Sheets API to read and update data
-    sheets = GoogleSheetsAPI()
+    sheets = GoogleSheetsAPI(
+        spreadsheet_id=REAL_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+    )
     df = sheets.read_sheet()
-    if df is None:
-        print("Failed to read the Google Sheet.")
-        return
 
     unmatched_bills_length = 0
     for bill in bills:
@@ -74,10 +74,9 @@ def main():
             else:
                 unmatched_bills_length += 1
                 print(f"Bill not found in Google Sheet: {bill_number}")
-    print(f"{unmatched_bills_length} bills were not matched to the Google Sheet.")
 
-    # Uncomment to update the Google Sheet
-    # sheets.update_data(df)
+    print(f"{unmatched_bills_length} bills were not matched to the Google Sheet.")
+    sheets.update_data(df)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 import os.path
-from typing import List, Optional
 
 import pandas as pd
 from google.auth.transport.requests import Request
@@ -9,23 +8,15 @@ from googleapiclient.discovery import build
 
 
 class GoogleSheetsAPI:
-    # If modifying these scopes, delete the file token.json.
-    SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-
-    # The ID and range of the spreadsheet.
-    # SPREADSHEET_ID = "1DBmf-9UObut_uh9i9GtEP7_hciqzd6uLMqPPKU9B0MA"  # Real Google Sheet
-    SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"  # Copy of Google Sheet
-    RANGE_NAME = "Input Form Responses!A1:AD"
-
     def __init__(
         self,
-        spreadsheet_id: Optional[str] = None,
-        range_name: Optional[str] = None,
-        scopes: Optional[List[str]] = None,
+        spreadsheet_id: str,
+        range_name: str,
+        scopes: list[str],
     ):
-        self.spreadsheet_id = spreadsheet_id if spreadsheet_id else self.SPREADSHEET_ID
-        self.range_name = range_name or self.RANGE_NAME
-        self.scopes = scopes or self.SCOPES
+        self.spreadsheet_id = spreadsheet_id
+        self.range_name = range_name
+        self.scopes = scopes
         self.creds = self._authenticate()
 
     def read_sheet(self) -> pd.DataFrame:

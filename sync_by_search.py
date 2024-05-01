@@ -5,27 +5,34 @@
 import re
 import pandas as pd
 
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
 
 def main():
-    sheet = GoogleSheetsAPI()
+    sheet = GoogleSheetsAPI(
+        spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+    )
     df: pd.DataFrame = sheet.read_sheet()
     client = LegiscanClient()
-    df = df.dropna(how="all")  # Remove empty rows
+
     for i, row in df.iterrows():
         if row["Level of Government"] not in {"State", "Federal"}:
             continue
+
         state = str(row["Jurisdiction"]).strip()
         state = LegiscanClient.STATE_NAME_TO_ABBR.get(state, "ALL") if state != "Federal" else "US"
+
         bill_number = str(row["Bill Number"]).strip()
         bill_number = re.sub(r"\s+", "", bill_number)
+
         introduction_date = str(row["Introduction Date"]).strip()
         if introduction_date not in {"NA", "N/A", "", "nan"}:
             year = int(introduction_date.split("/")[-1])
         else:
             year = 1
+
         try:
             result = client.get_search(state, bill=bill_number, year=year)
             bill_id, change_hash = search_result(result)

@@ -1,16 +1,21 @@
 import pandas as pd
 
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
 
 def main():
-    sheet = GoogleSheetsAPI()
+    sheet = GoogleSheetsAPI(
+        spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+    )
     df: pd.DataFrame = sheet.read_sheet()
     client = LegiscanClient()
 
     for i, row in df.iterrows():
         try:
+            if df.at[i, "Manual Override (for Latest Action)"] == "TRUE":
+                continue
             bill_id = str(row["Legiscan Bill ID"])
             if bill_id == "None":
                 continue
@@ -24,11 +29,8 @@ def main():
             )
             history = bill["history"][-1]["action"]
 
-            df.at[i, "Legislative Status"] = status
-            df.at[i, "Latest History"] = history
-
-            if df.at[i, "Manual Override (for Latest Action)"] != "FALSE":
-                continue
+            df.at[i, "Legiscan Status"] = status
+            df.at[i, "Legiscan Latest History"] = history
 
             if bill["status"] in {1, 2, 3}:
                 if bill["session"]["sine_die"] == 1:
@@ -41,10 +43,6 @@ def main():
                 latest_action = LegiscanClient.STATUS[bill["status"]]
 
             df.at[i, "Latest Action"] = latest_action
-
-            # Update the status last updated time if the row changes
-            # if any(row != df.loc[i]):
-            #     df.at[i, "Status Last Updated"] = datetime.now()
 
             print(f"{i}. {str(row['Bill Number'])}: {status}")
         except Exception as e:

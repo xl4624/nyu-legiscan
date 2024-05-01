@@ -2,81 +2,28 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
+from src.config import COPY_SPREADSHEET_ID, KEYWORDS, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
-KEYWORDS = [
-    # '"Aerial Drones"',
-    # '"Acoustic Gunshot Detection"',
-    # '"Artificial Intelligence"',
-    # '"Automated Decision Systems"',
-    '"Automated Decision Making"',
-    # '"Automatic License Plate Reader"',
-    # '"Biometric Data"',
-    # '"Biometric Information"',
-    # '"Biometric Surveillance"',
-    # '"Body-Worn Cameras"',
-    # '"Cell Phone Location Data"',
-    # '"Cell Site Simulators"',
-    # '"Child Data Collection"',
-    # '"Child Data Surveillance"',
-    # '"Consumer Data"',
-    # '"Consumer Health Data"',
-    # '"Consumer Data Privacy"',
-    # '"Consumer Privacy"',
-    # '"Data Broker"',
-    # '"Data Mining"',
-    # '"DNA Database"',
-    # '"Driver’s License Data"',
-    # '"Drones"',
-    # # '"Electronic Communication"',
-    # '"Electronic Monitoring"',
-    # '"Electronic Tolling Data"',
-    # '"Facial Recognition Technology"',
-    # '"Forensic Investigative Genetic Genealogy"',
-    # '"Foreign Intelligence Surveillance Act"',
-    # '"Genetic Data"',
-    # '"Geofence"',
-    # '"Geofence Warrant"',
-    # '"Geolocation Data"',
-    # # '"Health Data"',
-    # '"IMSI catchers"',
-    # '"Location Data"',
-    # '"DNA Phenotyping"',
-    # '"Predictive Policing"',
-    # '"Predictive Algorithm"',
-    # '"Prison Surveillance"',
-    # # '"Privacy"',
-    # '"Public Health Surveillance Data"',
-    # '"National Security Electronic Surveillance"',
-    # '"Rapid DNA"',
-    # '"Reverse Keyword Search"',
-    # '"Reverse Warrant"',
-    # '"Reproductive Health Surveillance Data"',
-    # '"Risk Assessment Instrument"',
-    # '"Robotic Device"',
-    # '"School Surveillance"',
-    # '"Social Media Surveillance"',
-    # '"Stingrays"',
-    # # '"Surveillance"',
-    # '"Video Surveillance"',
-]
-
 
 def main():
-    sheet = GoogleSheetsAPI()
+    sheet = GoogleSheetsAPI(
+        spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+    )
     df: pd.DataFrame = sheet.read_sheet()
     client = LegiscanClient()
+    rows_to_append = []
     seen_ids = set()
     for bill_id in df["Legiscan Bill ID"]:
         if bill_id is not None and bill_id != "" and bill_id in seen_ids:
             print(bill_id)
         seen_ids.add(bill_id)
-    rows_to_append = []
 
     for keyword in KEYWORDS:
         page = 1
-        while True:
+        stop = False
+        while not stop:
             response = client.get_search("ALL", query=keyword, year=3, page=page)
             if response["status"] != "OK":
                 print(f"{keyword} failed during search")
@@ -88,13 +35,24 @@ def main():
             print(f"{keyword}: {count} (PAGE {page})")
 
             for key, candidate in search_results.items():
-                if key.isdigit() and str(candidate["bill_id"]) not in seen_ids:
+                if not key.isdigit():  # skip the summary
+                    continue
+
+                # Since getSearch is sorted by relevance, if we find a bill with a
+                # relevance score less than 90, we can stop searching for that keyword
+                if candidate["relevance"] < 90:
+                    print(f"Found a bill with relevance < 90, stopping search for {keyword}")
+                    stop = True
+                    break
+
+                if str(candidate["bill_id"]) not in seen_ids:
                     bill_id = str(candidate["bill_id"])
                     if (
                         candidate["last_action_date"]
                         and candidate["last_action_date"][0:4] != "2023"
                     ):
                         continue
+
                     response = client.get_bill(bill_id)
                     if response["status"] == "OK" and response["bill"]["status"] == 4:
                         bill = response["bill"]
@@ -103,14 +61,24 @@ def main():
                             f"{current_time.strftime('%Y-%m-%d %I:%M:%S %p')} GMT-05:00"
                         )
                         level_of_government = "State" if bill["state"] != "US" else "Federal"
+
                         if bill["state"] != "US":
                             jurisdiction = client.STATE_ABBR_TO_NAME[bill["state"]]
                         else:
                             jurisdiction = "Federal"
+
                         sponsors: list[str] = []
                         for sponsor in bill["sponsors"]:
-                            if sponsor["sponsor_type_id"] == 1:
+                            if sponsor["sponsor_type_id"] == 1:  # filters out co-sponsors
                                 sponsors.append(f"{sponsor['role']} {sponsor['name']}")
+
+                        status = client.get_status_from(
+                            bill["status"],
+                            bill["status_date"],
+                            bill["session"]["sine_die"],
+                        )
+                        history = bill["history"][-1]["action"]
+
                         row = {
                             "Status Last Updated": status_last_updated,
                             "Review Status": "Unreviewed",
@@ -122,26 +90,29 @@ def main():
                             "Introduction Date": bill["progress"][0]["date"],
                             "Enactment Date": bill["status_date"],
                             "Latest Action": "Enacted",
+                            "Legiscan Status": status,
+                            "Legiscan Latest History": history,
                             "Official Description": bill["description"],
                             "Sponsors and Co-Sponsors": "\n".join(sponsors),
                             "Data Contributed By": "The Center on Race, Inequality, and the Law",
                             "Legiscan Bill ID": bill["bill_id"],
                             "Change Hash": bill["change_hash"],
                         }
+                        print(f"Adding new bill from keyword {keyword}: {bill['title']}")
                         rows_to_append.append(row)
-                        print(row)
                         seen_ids.add(bill_id)
 
-            # Break if we have reached the end of the results
+            # The reason we don't just for loop using page_total is that for some
+            # reason, the page_total (especially in the first few pages) is not accurate
+            # and will increase as we paginate through the results.
             if page >= page_total:
-                # print(f"{keyword}: {count}")
                 break
             page += 1
 
+    print(f"Added {len(rows_to_append)} new bills")
     new_df = pd.DataFrame(rows_to_append)
-    df = pd.concat([df, new_df], ignore_index=True)
-    df = df.fillna("")
-    # sheet.update_data(df)
+    df = pd.concat([df, new_df], ignore_index=True).fillna("")
+    sheet.update_data(df)
 
 
 if __name__ == "__main__":
