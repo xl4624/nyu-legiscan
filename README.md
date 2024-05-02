@@ -20,14 +20,27 @@
 to enable the Google Sheets API: and save the `credentials.json` and `token.json`
 file in the root directory.
 
+### Developer Setup
+
+Here is some of the stuff I'm using, feel free to use whatever setup you like.  
+
+- I'm using `pyenv` to manage Python virtualenvs
+- I'm using `pyright` lsp and `ruff` lsp/formatter with this line of code inside
+`pyproject.toml`
+
+    ```toml
+    [tool.ruff]
+    line-length = 100
+    ```
+
 ## Progress
 
 ### TODO
 
 - [ ] Making a Google Docs of the technical documentation.
-- [ ] Adding the rest of the fields to the new bills.
-- [ ] Run the `add_bills.py` script with >90 relevance score
-- [ ]Sync up the copy and the real Google Sheets. (5/17 if needed)
+- [x] Adding the rest of the fields to the new bills.
+- [x] Run the `add_bills.py` script with >90 relevance score
+- [ ] Sync up the copy and the real Google Sheets. (5/17 if needed)
 
 ### Notes
 

@@ -20,7 +20,7 @@ def main():
             "title": bill["bill"]["title"],
             "state": bill["bill"]["state"],
         }
-        for bill in client.fetch_bills(monitor_list)
+        for bill in [client.get_bill(bill["bill_id"]) for bill in monitor_list]
     ]
 
     # Example of using the Google Sheets API to read and update data
@@ -34,8 +34,7 @@ def main():
         bill_number = bill["bill_number"]
 
         # Split up bill into prefix (without numbers) and suffix (only numbers)
-        parts = re.match(r"(\D+)(\d+)", bill_number)
-        if parts:
+        if parts := re.match(r"(\D+)(\d+)", bill_number):
             prefix, suffix = parts.groups()
             modified_bill_numbers = set(
                 [

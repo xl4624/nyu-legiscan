@@ -1,3 +1,6 @@
+# TODO: Use the Change Hash to compare with getMasterListRaw calls to detect
+# when bills have changed and need updating.
+
 import pandas as pd
 
 from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES

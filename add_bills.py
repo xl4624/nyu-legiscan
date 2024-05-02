@@ -24,7 +24,7 @@ def main():
         page = 1
         stop = False
         while not stop:
-            response = client.get_search("ALL", query=keyword, year=3, page=page)
+            response = client.get_search(state="ALL", bill=None, query=keyword, year=3, page=page)
             if response["status"] != "OK":
                 print(f"{keyword} failed during search")
                 break
@@ -88,7 +88,7 @@ def main():
                             "Bill Number": bill["bill_number"],
                             "Link to Bill": bill["state_link"],
                             "Introduction Date": bill["progress"][0]["date"],
-                            "Enactment Date": bill["status_date"],
+                            "Enactment Date": bill["status_date"] if bill["status"] == 4 else "N/A",
                             "Latest Action": "Enacted",
                             "Legiscan Status": status,
                             "Legiscan Latest History": history,
