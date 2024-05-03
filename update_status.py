@@ -3,7 +3,7 @@
 
 import pandas as pd
 
-from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
@@ -17,8 +17,8 @@ def main():
 
     for i, row in df.iterrows():
         try:
-            if df.at[i, "Manual Override (for Latest Action)"] == "TRUE":
-                continue
+
+
             bill_id = str(row["Legiscan Bill ID"])
             if bill_id == "None":
                 continue
@@ -34,6 +34,9 @@ def main():
 
             df.at[i, "Legiscan Status"] = status
             df.at[i, "Legiscan Latest History"] = history
+
+            if df.at[i, "Manual Override (for Latest Action)"] == "TRUE":
+                continue
 
             if bill["status"] in {1, 2, 3}:
                 if bill["session"]["sine_die"] == 1:

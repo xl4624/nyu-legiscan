@@ -2,7 +2,12 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
-from src.config import COPY_SPREADSHEET_ID, KEYWORDS, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import (
+    COPY_SPREADSHEET_ID,
+    KEYWORDS,
+    RANGE_NAME,
+    SCOPES,
+)
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
@@ -38,6 +43,10 @@ def main():
                 if not key.isdigit():  # skip the summary
                     continue
 
+                bill_id = str(candidate["bill_id"])
+                if bill_id in seen_ids:  # avoid duplicates
+                    continue
+
                 # Since getSearch is sorted by relevance, if we find a bill with a
                 # relevance score less than 90, we can stop searching for that keyword
                 if candidate["relevance"] < 90:
@@ -45,17 +54,13 @@ def main():
                     stop = True
                     break
 
-                if str(candidate["bill_id"]) not in seen_ids:
-                    bill_id = str(candidate["bill_id"])
-                    if (
-                        candidate["last_action_date"]
-                        and candidate["last_action_date"][0:4] != "2023"
-                    ):
+                if passes_pre_detail_filter(candidate):
+                    response = client.get_bill(bill_id)
+                    if response["status"] != "OK":
                         continue
 
-                    response = client.get_bill(bill_id)
-                    if response["status"] == "OK" and response["bill"]["status"] == 4:
-                        bill = response["bill"]
+                    bill = response["bill"]
+                    if passes_post_detail_filter(bill):  # TODO: Remove
                         current_time = datetime.now(timezone(-timedelta(hours=5)))  # assuming gmt-5
                         status_last_updated = (
                             f"{current_time.strftime('%Y-%m-%d %I:%M:%S %p')} GMT-05:00"
@@ -103,7 +108,7 @@ def main():
                         seen_ids.add(bill_id)
 
             # The reason we don't just for loop using page_total is that for some
-            # reason, the page_total (especially in the first few pages) is not accurate
+            # reason, the page_total (for the first pages at least) is not accurate
             # and will increase as we paginate through the results.
             if page >= page_total:
                 break
@@ -113,6 +118,22 @@ def main():
     new_df = pd.DataFrame(rows_to_append)
     df = pd.concat([df, new_df], ignore_index=True).fillna("")
     sheet.update_data(df)
+
+
+# These are just example filters that we used on 05/01/2024.
+
+def passes_pre_detail_filter(candidate):
+    """
+    Criteria for filtering bills from search results.
+    """
+    return candidate["last_action_date"] and candidate["last_action_date"][0:4] == "2023"
+
+
+def passes_post_detail_filter(bill):
+    """
+    Criteria for filtering bills from bill details.
+    """
+    return bill["status"] == 4
 
 
 if __name__ == "__main__":

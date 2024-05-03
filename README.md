@@ -40,7 +40,7 @@ Here is some of the stuff I'm using, feel free to use whatever setup you like.
 - [ ] Making a Google Docs of the technical documentation.
 - [x] Adding the rest of the fields to the new bills.
 - [x] Run the `add_bills.py` script with >90 relevance score
-- [ ] Sync up the copy and the real Google Sheets. (5/17 if needed)
+- [x] Sync up the copy and the real Google Sheets. (5/17 if needed)
 
 ### Notes
 

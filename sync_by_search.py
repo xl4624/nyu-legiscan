@@ -3,9 +3,10 @@
 # either by Terrance or by other community members
 
 import re
+
 import pandas as pd
 
-from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
@@ -22,7 +23,11 @@ def main():
             continue
 
         state = str(row["Jurisdiction"]).strip()
-        state = LegiscanClient.STATE_NAME_TO_ABBR.get(state, "ALL") if state != "Federal" else "US"
+        state = (
+            LegiscanClient.STATE_NAME_TO_ABBR.get(state, "ALL")
+            if state != "Federal"
+            else "US"
+        )
 
         bill_number = str(row["Bill Number"]).strip()
         bill_number = re.sub(r"\s+", "", bill_number)

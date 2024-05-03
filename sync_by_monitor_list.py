@@ -3,7 +3,7 @@
 
 import re
 
-from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
