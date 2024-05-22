@@ -108,8 +108,8 @@ def main():
                         seen_ids.add(bill_id)
 
             # The reason we don't just for loop using page_total is that for some
-            # reason, the page_total (for the first pages at least) is not accurate
-            # and will increase as we paginate through the results.
+            # reason, the page_total (for the first few pages at least) is not
+            # accurate and will increase as we paginate through the results.
             if page >= page_total:
                 break
             page += 1
