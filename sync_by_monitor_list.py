@@ -3,7 +3,7 @@
 
 import re
 
-from src.config import RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import RANGE_NAME, COPY_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
@@ -25,7 +25,7 @@ def main():
 
     # Example of using the Google Sheets API to read and update data
     sheets = GoogleSheetsAPI(
-        spreadsheet_id=REAL_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+        spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
     )
     df = sheets.read_sheet()
 

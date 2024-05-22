@@ -3,13 +3,13 @@
 
 import pandas as pd
 
-from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, REAL_SPREADSHEET_ID, SCOPES
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, COPY_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 
 
 def main():
     real_sheet = GoogleSheetsAPI(
-        range_name=RANGE_NAME, spreadsheet_id=REAL_SPREADSHEET_ID, scopes=SCOPES
+        range_name=RANGE_NAME, spreadsheet_id=COPY_SPREADSHEET_ID, scopes=SCOPES
     )
     real_df: pd.DataFrame = real_sheet.read_sheet()
     copy_sheet = GoogleSheetsAPI(

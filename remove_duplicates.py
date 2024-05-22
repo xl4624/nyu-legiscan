@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.config import (
     RANGE_NAME,
-    REAL_SPREADSHEET_ID,
+    COPY_SPREADSHEET_ID,
     SCOPES,
 )
 from src.google_sheets import GoogleSheetsAPI
@@ -16,7 +16,7 @@ from src.google_sheets import GoogleSheetsAPI
 
 def main():
     sheet = GoogleSheetsAPI(
-        spreadsheet_id=REAL_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
+        spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES
     )
     df = sheet.read_sheet()
     original_len = df.shape[0]
