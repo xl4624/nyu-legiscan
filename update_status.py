@@ -17,8 +17,6 @@ def main():
 
     for i, row in df.iterrows():
         try:
-
-
             bill_id = str(row["Legiscan Bill ID"])
             if bill_id == "None":
                 continue
