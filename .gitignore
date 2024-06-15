@@ -166,3 +166,4 @@ pyproject.toml
 # Google Cloud Credentials
 credentials.json
 token.json
+.env
