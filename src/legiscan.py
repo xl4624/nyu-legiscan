@@ -1,10 +1,7 @@
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, List
 import requests
-
 from .config import LEGISCAN_API_KEY
-
 
 class LegiscanClient:
     BASE_URL = "https://api.legiscan.com/"
@@ -12,7 +9,7 @@ class LegiscanClient:
     def __init__(self, api_key: Optional[str] = LEGISCAN_API_KEY):
         self.api_key = api_key
 
-    def get_monitor_list(self, record: Optional[str] = "current") -> list[dict]:
+    def get_monitor_list(self, record: Optional[str] = "current") -> List[dict]:
         """
         This operation returns the GAITS monitor list of summary bill data being tracked by the
         account associated with the API key.

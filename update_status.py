@@ -2,11 +2,9 @@
 # when bills have changed and need updating.
 
 import pandas as pd
-
 from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
-
 
 def main():
     sheet = GoogleSheetsAPI(
@@ -40,9 +38,9 @@ def main():
                 if bill["session"]["sine_die"] == 1:
                     latest_action = "Died in Chamber/Committee"
                 else:
-                    latest_action = "Proposed and Pending"
+                    latest_action = LegiscanClient.STATUS[bill["status"]]
             elif bill["status"] == 4:  # From passed to enacted
-                latest_action = "Enacted"
+                latest_action = "Enacted" # passed
             else:
                 latest_action = LegiscanClient.STATUS[bill["status"]]
 
@@ -51,9 +49,9 @@ def main():
             print(f"{i}. {str(row['Bill Number'])}: {status}")
         except Exception as e:
             print(f"{i}. {str(row['Bill Number'])}: FAILED ({e})")
+            exit()
 
-    sheet.update_data(df)
-
+    # sheet.update_data(df)
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from typing import List
 
 
 class GoogleSheetsAPI:
@@ -12,7 +13,7 @@ class GoogleSheetsAPI:
         self,
         spreadsheet_id: str,
         range_name: str,
-        scopes: list[str],
+        scopes: List[str],
     ):
         self.spreadsheet_id = spreadsheet_id
         self.range_name = range_name

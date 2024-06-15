@@ -10,7 +10,6 @@ from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 
-
 def main():
     sheet = GoogleSheetsAPI(
         spreadsheet_id=COPY_SPREADSHEET_ID, range_name=RANGE_NAME, scopes=SCOPES

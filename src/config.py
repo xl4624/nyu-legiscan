@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 LEGISCAN_API_KEY = os.getenv("LEGISCAN_API_KEY")
+LEGISCAN_API_KEY = "544c48d03d26f6ab43d30eebeaedf608"
+
 if LEGISCAN_API_KEY is None:
     print("Please add the LEGISCAN_API_KEY variable to your .env file")
     exit(1)
@@ -13,6 +15,8 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 COPY_SPREADSHEET_ID = "1DBmf-9UObut_uh9i9GtEP7_hciqzd6uLMqPPKU9B0MA"
 COPY_SPREADSHEET_ID = "15xeV_rgcHNYVUydU31fre8HZ19aIC7V3jLWuvW1rScI"
+COPY_SPREADSHEET_ID = "19_D-eZL31ThVDAghXH5rGmzkJY0J8b0-Fs2QVpPidSM"
+
 
 RANGE_NAME = "Input Form Responses!A1:AD"
 
