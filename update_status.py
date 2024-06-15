@@ -16,11 +16,14 @@ def main():
     for i, row in df.iterrows():
         try:
             bill_id = str(row["Legiscan Bill ID"])
-            if bill_id == "None" or row["Review Status"] == "Rejected":
+            if not bill_id or bill_id == "None" or row["Review Status"] == "Rejected":
                 continue
 
             response = client.get_bill(bill_id)
-            bill = response["bill"]
+            try:
+                bill = response["bill"]
+            except Exception as e:
+                print(f"{response}, {bill_id}: {str(e)}")
             status = client.get_status_from(
                 bill["status"],
                 bill["status_date"],
@@ -49,9 +52,8 @@ def main():
             print(f"{i}. {str(row['Bill Number'])}: {status}")
         except Exception as e:
             print(f"{i}. {str(row['Bill Number'])}: FAILED ({e})")
-            exit()
 
-    # sheet.update_data(df)
+    sheet.update_data(df)
 
 if __name__ == "__main__":
     main()
