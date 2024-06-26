@@ -4,6 +4,7 @@
 # drop_duplicates() method because I kept running into issues with it (regarding
 # types and empty values) and it was easier to just write our own logic.
 
+import Log
 import pandas as pd
 
 from src.config import (

@@ -1,8 +1,8 @@
 # Monitor List to Google Sheets Bill ID and Change Hash Sync
 # Deprecated since we should search from the Google Sheets to the Legsican API not the other way around.
 
+import Log
 import re
-
 from src.config import RANGE_NAME, COPY_SPREADSHEET_ID, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient

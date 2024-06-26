@@ -1,6 +1,7 @@
 # Rejects bills from the real sheet if they are rejected in the copy sheet
 # to ensure that rejected bills are not re-reviewed in the real sheet
 
+import Log
 import pandas as pd
 
 from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, COPY_SPREADSHEET_ID, SCOPES

@@ -1,8 +1,8 @@
 # TODO: Use the Change Hash to compare with getMasterListRaw calls to detect
 # when bills have changed and need updating.
-
+import Log
 import pandas as pd
-from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
+from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES, LOCAL_TIMEZONE_OFFSET
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient
 

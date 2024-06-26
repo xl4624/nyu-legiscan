@@ -2,10 +2,9 @@
 # Should be run biweekly(?) to update bills that are manually added
 # either by Terrance or by other community members
 
+import Log
 import re
-
 import pandas as pd
-
 from src.config import COPY_SPREADSHEET_ID, RANGE_NAME, SCOPES
 from src.google_sheets import GoogleSheetsAPI
 from src.legiscan import LegiscanClient

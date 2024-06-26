@@ -82,6 +82,25 @@ class LegiscanClient:
 
         return response
 
+
+    def get_relation_from(self, sast:dict)->str:
+        if not sast:
+            return "N/A"
+
+        _id = int(sast["type_id"])
+        relation_type = self.SAST[_id - 1]
+        bill_number = sast["sast_bill_number"]
+        bill_id = sast["sast_bill_id"]
+
+        description = relation_type
+        if _id == 9:
+            description += " of previous "
+        elif _id == 8:
+            description += " to "
+        
+        description += bill_number
+        return description
+            
     def _make_request(self, operation: str, **params):
         params.update({"key": self.api_key, "op": operation})
         response = requests.get(self.BASE_URL, params=params)
@@ -103,6 +122,19 @@ class LegiscanClient:
         "Report DNP",
         "Draft",
     ]
+
+    SAST = [
+        "Same As",
+        "Similar To",
+        "Replaced By",
+        "Replaces",
+        "Cross-filed",
+        "Enabling For",
+        "Enabled By",
+        "Related",
+        "Carry Over"
+    ]
+
 
     STATE_ABBR_TO_NAME = {
         # https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States#States.
