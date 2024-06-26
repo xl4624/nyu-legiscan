@@ -83,23 +83,27 @@ class LegiscanClient:
         return response
 
 
-    def get_relation_from(self, sast:dict)->str:
-        if not sast:
+    def get_relation_from(self, sasts:dict)->str:
+        if not sasts:
             return "N/A"
 
-        _id = int(sast["type_id"])
-        relation_type = self.SAST[_id - 1]
-        bill_number = sast["sast_bill_number"]
-        bill_id = sast["sast_bill_id"]
+        try:
+            sasts = sasts[0]
+            _id = int(sasts["type_id"])
+            relation_type = self.SAST[_id - 1]
+            bill_number = sasts["sast_bill_number"]
+            # bill_id = sasts["sast_bill_id"]
 
-        description = relation_type
-        if _id == 9:
-            description += " of previous "
-        elif _id == 8:
-            description += " to "
-        
-        description += bill_number
-        return description
+            description = relation_type
+            if _id == 9:
+                description += " of previous"
+            elif _id == 8:
+                description += " to"
+            
+            description += " bill " + bill_number
+            return description
+        except Exception as e:
+            print("Error >> ", str(e), sasts)
             
     def _make_request(self, operation: str, **params):
         params.update({"key": self.api_key, "op": operation})

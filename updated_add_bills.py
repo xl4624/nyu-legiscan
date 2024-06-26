@@ -47,10 +47,6 @@ def main():
                 if bill_id in seen_ids:  # avoid duplicates
                     continue
 
-                # Skip bills which are introduced before or after the years defined in the list
-                if int(bill["progress"][0]["date"][:4]) in [2023, 2024]:
-                    continue
-
                 # Since getSearch is sorted by relevance, if we find a bill with a
                 # relevance score less than 90, we can stop searching for that keyword
                 if candidate["relevance"] < 90:
@@ -63,6 +59,11 @@ def main():
                     continue
 
                 bill = response["bill"]
+
+                # Skip bills which are introduced before or after the years defined in the list
+                if int(bill["progress"][0]["date"][:4]) in [2023, 2024]:
+                    continue
+                
                 current_time = datetime.now(timezone(-timedelta(hours=5)))  # assuming gmt-5
                 status_last_updated = (
                     f"{current_time.strftime('%Y-%m-%d %I:%M:%S %p')} GMT-05:00"
@@ -88,11 +89,11 @@ def main():
                 if bill['status'] > 6:
                     print(f"bill status: {bill['status']}: {bill}")
 
-                status = 'Enacted' if bill["status"] in [4, 7, 8] else status
-                latest_action = "Passed" if latest_action else latest_action
                 history = bill["history"][-1]["action"]
                 latest_action = LegiscanClient.STATUS[bill["status"]]
+                latest_action = "Enacted" if bill["status"] == 4 else latest_action
                 latest_action = "Died in Committee" if bill["session"]["sine_die"] and  bill["status"] in {1, 2, 3} else latest_action
+                
                 relation = client.get_relation_from(bill["sasts"])
 
                 row = {
@@ -115,10 +116,12 @@ def main():
                     "Legiscan Bill ID": bill["bill_id"],
                     "Change Hash": bill["change_hash"],
                 }
+
                 print(f"Adding new bill from keyword {keyword}: {bill['title']}, {jurisdiction}, {bill['bill_number']}")
                 rows_to_append.append(row)
                 seen_ids.add(bill_id)
-                # break
+            
+            
             # The reason we don't just for loop using page_total is that for some
             # reason, the page_total (for the first few pages at least) is not
             # accurate and will increase as we paginate through the results.
@@ -126,12 +129,11 @@ def main():
                 break
             page += 1
 
-            # break
-
-    print(f"Added {len(rows_to_append)} new bills")
     new_df = pd.DataFrame(rows_to_append)
-    df = pd.concat([df, new_df], ignore_index=True).fillna("")
-    sheet.update_data(df)
+    non_empty_counts = df.apply(lambda row: row[row != ''].count(), axis=1)
+    filtered_df = df[non_empty_counts > 1]
+    df_2 = pd.concat([filtered_df, new_df], ignore_index=True).fillna("")  # Concatenate and fill NA values
+    sheet.update_data(df_2)
 
 
 # These are just example filters that we used on 05/01/2024.
